@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kế hoạch công việc CEO</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f4f4f4; }
+    h1 { text-align: center; }
+    #loginForm, #taskBoard { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { padding: 8px 12px; border: 1px solid #ccc; }
+    th { background-color: #f0f0f0; }
+    select, button { padding: 6px 10px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <div id="loginForm">
+    <h1>Đăng nhập</h1>
+    <label>Chọn công ty:</label>
+    <select id="companySelect">
+      <option value="KCL">CEO KCL</option>
+      <option value="KTech">CEO KTech</option>
+    </select>
+    <br />
+    <button onclick="login()">Xem công việc</button>
+  </div>
+
+  <div id="taskBoard" style="display:none">
+    <h1>Kế hoạch công việc - <span id="selectedCompany"></span></h1>
+    <label>Lọc theo nhóm công việc:</label>
+    <select id="filterGroup" onchange="renderTable()">
+      <option value="">-- Tất cả --</option>
+    </select>
+    <table>
+      <thead>
+        <tr>
+          <th>STT</th>
+          <th>Nhóm công việc</th>
+          <th>Mô tả</th>
+          <th>Thời hạn báo cáo</th>
+          <th>Trọng số (%)</th>
+        </tr>
+      </thead>
+      <tbody id="taskTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    const data = [
+      { Cong_ty: "KCL", STT: 1, Nhom: "Lập kế hoạch kinh doanh", MoTa: "Xây dựng kế hoạch phát triển thị trường, xác định khách hàng mục tiêu...", ThoiHan: "Ngày 03 hàng tháng", TrongSo: 15 },
+      { Cong_ty: "KCL", STT: 2, Nhom: "Quản lý dự án", MoTa: "Theo dõi tiến độ các dự án đang triển khai theo quý.", ThoiHan: "Thứ Hai hàng tuần", TrongSo: 20 },
+      { Cong_ty: "KCL", STT: 3, Nhom: "Điều phối nhân sự triển khai", MoTa: "Lập kế hoạch phân công nhân sự theo năng lực từng người...", ThoiHan: "Ngày 05 hàng tháng", TrongSo: 10 },
+      { Cong_ty: "KCL", STT: 4, Nhom: "Báo cáo tài chính tổng hợp", MoTa: "Làm việc với kế toán để tổng hợp các báo cáo tài chính hàng tháng...", ThoiHan: "Ngày 03 hàng tháng", TrongSo: 10 },
+      { Cong_ty: "KCL", STT: 5, Nhom: "Hợp đồng & pháp lý", MoTa: "Theo dõi tiến độ đàm phán, ký kết hợp đồng...", ThoiHan: "Thứ Sáu tuần cuối mỗi tháng", TrongSo: 10 },
+      { Cong_ty: "KTech", STT: 1, Nhom: "Quản lý sản phẩm phần mềm", MoTa: "Đảm bảo tiến độ phát triển phần mềm theo kế hoạch", ThoiHan: "Thứ Ba hàng tuần", TrongSo: 25 },
+      { Cong_ty: "KTech", STT: 2, Nhom: "Hỗ trợ khách hàng & bảo hành", MoTa: "Theo dõi xử lý lỗi và hỗ trợ khách hàng kịp thời", ThoiHan: "Thứ Năm hàng tuần", TrongSo: 15 },
+      { Cong_ty: "KTech", STT: 3, Nhom: "Phát triển thị trường", MoTa: "Phân tích nhu cầu, tiếp cận khách hàng mới", ThoiHan: "Ngày 10 hàng tháng", TrongSo: 20 },
+      { Cong_ty: "KTech", STT: 4, Nhom: "Kiểm thử & tài liệu kỹ thuật", MoTa: "Soạn tài liệu hướng dẫn, kiểm thử hệ thống trước khi triển khai", ThoiHan: "Ngày 05 hàng tháng", TrongSo: 10 }
+    ];
+
+    let currentCompany = "";
+
+    function login() {
+      currentCompany = document.getElementById("companySelect").value;
+      document.getElementById("selectedCompany").innerText = currentCompany;
+      document.getElementById("loginForm").style.display = "none";
+      document.getElementById("taskBoard").style.display = "block";
+      populateGroupFilter();
+      renderTable();
+    }
+
+    function populateGroupFilter() {
+      const select = document.getElementById("filterGroup");
+      const groups = [...new Set(data.filter(d => d.Cong_ty === currentCompany).map(d => d.Nhom))];
+      select.innerHTML = '<option value="">-- Tất cả --</option>' + groups.map(g => `<option value="${g}">${g}</option>`).join("");
+    }
+
+    function renderTable() {
+      const filter = document.getElementById("filterGroup").value;
+      const rows = data.filter(d => d.Cong_ty === currentCompany && (filter === "" || d.Nhom === filter));
+      document.getElementById("taskTable").innerHTML = rows.map(d => `
+        <tr>
+          <td>${d.STT}</td>
+          <td>${d.Nhom}</td>
+          <td>${d.MoTa}</td>
+          <td>${d.ThoiHan}</td>
+          <td>${d.TrongSo}</td>
+        </tr>`).join("");
+    }
+  </script>
+</body>
+</html>
